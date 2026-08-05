@@ -1,0 +1,8 @@
+COMMIT_MSG_FILE="$1"
+
+sed -i.bak '/^Co-authored-by:.*[Cc][Oo][Pp][Ii][Ll][Oo][Tt]/d' "$COMMIT_MSG_FILE"
+sed -i.bak '/^[Cc]o-[Aa]uthored-[Bb]y:.*[Vv][Ii][Bb][Ee]/d' "$COMMIT_MSG_FILE"
+sed -i.bak '/^[Cc]o-[Aa]uthored-[Bb]y:.*[Cc][Ll][Aa][Uu][Dd][Ee]/d' "$COMMIT_MSG_FILE"
+sed -i.bak '/^[Gg]enerated by.*[Vv][Ii][Bb][Ee]/d' "$COMMIT_MSG_FILE"
+
+rm -f "${COMMIT_MSG_FILE}.bak"

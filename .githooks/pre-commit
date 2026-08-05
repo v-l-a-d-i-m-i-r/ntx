@@ -1,0 +1,22 @@
+#!/usr/bin/env sh
+
+# Runs gofmt, golangci-lint, and go test
+
+set -e
+
+STAGED_GO=$(git diff --cached --name-only --diff-filter=ACMR | grep '\.go$' || true)
+
+if [ -z "$STAGED_GO" ]; then
+  exit 0
+fi
+
+# Check formatting of staged files only
+UNFORMATTED=$(echo "$STAGED_GO" | xargs gofmt -l)
+if [ -n "$UNFORMATTED" ]; then
+  echo "Files need formatting:"
+  echo "$UNFORMATTED"
+  exit 1
+fi
+
+go tool golangci-lint run
+go test ./...
