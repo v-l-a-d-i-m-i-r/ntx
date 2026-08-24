@@ -14,6 +14,10 @@ init:
 test:
   @go test ./...;
 
+# Generate a new internal/db migration file (e.g. just generate-migration create_notifications)
+generate-migration slug:
+  @./tools/new-migration.sh {{slug}};
+
 # Run linter
 lint:
   @go tool golangci-lint run;
@@ -39,14 +43,42 @@ install-cli: build-cli
   @mkdir -p $INSTALL_DIR
   @cp ./bin/ntx-cli $INSTALL_DIR/ntx-cli;
 
+# Build the ntx-dbus-forwarder binary
+build-dbus-forwarder:
+  @CGO_ENABLED=0 go build -ldflags="-s -w" -o ./bin/ntx-dbus-forwarder ./cmd/ntx-dbus-forwarder;
+
+# Run the ntx-dbus-forwarder daemon directly
+run-dbus-forwarder: build-dbus-forwarder
+  @./bin/ntx-dbus-forwarder;
+
+# Install the ntx-dbus-forwarder binary to the specified install directory
+install-dbus-forwarder: build-dbus-forwarder
+  @mkdir -p $INSTALL_DIR
+  @cp ./bin/ntx-dbus-forwarder $INSTALL_DIR/ntx-dbus-forwarder;
+
+# Build the ntx-server binary
+build-server:
+  @CGO_ENABLED=0 go build -ldflags="-s -w" -o ./bin/ntx-server ./cmd/ntx-server;
+
+# Run the ntx-server daemon directly
+run-server: build-server
+  @./bin/ntx-server;
+
+# Install the ntx-server binary to the specified install directory
+install-server: build-server
+  @mkdir -p $INSTALL_DIR
+  @cp ./bin/ntx-server $INSTALL_DIR/ntx-server;
+
 # Build all binaries
 build-all:
   @CGO_ENABLED=0 go build -ldflags="-s -w" -o ./bin/ \
     ./cmd/ntx-cli \
-    ./cmd/ntx-backend;
+    ./cmd/ntx-server \
+    ./cmd/ntx-dbus-forwarder;
 
 # Install all binaries
 install-all: build-all
   @mkdir -p $INSTALL_DIR
   @cp ./bin/ntx-cli $INSTALL_DIR/ntx-cli;
-  @cp ./bin/ntx-backend $INSTALL_DIR/ntx-backend;
+  @cp ./bin/ntx-server $INSTALL_DIR/ntx-server;
+  @cp ./bin/ntx-dbus-forwarder $INSTALL_DIR/ntx-dbus-forwarder;
